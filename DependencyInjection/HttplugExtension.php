@@ -3,8 +3,10 @@
 namespace Http\HttplugBundle\DependencyInjection;
 
 use Http\Client\Common\BatchClient;
+use Http\Client\Common\BatchClientImpl;
 use Http\Client\Common\FlexibleHttpClient;
 use Http\Client\Common\HttpMethodsClient;
+use Http\Client\Common\HttpMethodsClientImpl;
 use Http\Client\Common\Plugin\AuthenticationPlugin;
 use Http\Client\Common\PluginClient;
 use Http\Client\Common\PluginClientFactory;
@@ -362,8 +364,9 @@ class HttplugExtension extends Extension
         }
 
         if ($arguments['http_methods_client']) {
+            $fqn = class_exists(HttpMethodsClientImpl::class) ? HttpMethodsClientImpl::class : HttpMethodsClient::class;
             $container
-                ->register($serviceId.'.http_methods', HttpMethodsClient::class)
+                ->register($serviceId.'.http_methods', $fqn)
                 ->setArguments([new Reference($serviceId.'.http_methods.inner'), new Reference('httplug.message_factory')])
                 ->setPublic($arguments['public'] ? true : false)
                 ->setDecoratedService($serviceId)
@@ -371,8 +374,9 @@ class HttplugExtension extends Extension
         }
 
         if ($arguments['batch_client']) {
+            $fqn = class_exists(BatchClientImpl::class) ? BatchClientImpl::class : BatchClient::class;
             $container
-                ->register($serviceId.'.batch_client', BatchClient::class)
+                ->register($serviceId.'.batch_client', $fqn)
                 ->setArguments([new Reference($serviceId.'.batch_client.inner')])
                 ->setPublic($arguments['public'] ? true : false)
                 ->setDecoratedService($serviceId)
